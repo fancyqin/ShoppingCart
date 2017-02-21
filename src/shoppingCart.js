@@ -73,9 +73,12 @@
     //API
     ShoppingCart.extend({
         __init: function(){
-            this.__getAjaxData();
+            var _this = this;
+            this.__getAjaxData(function(){
+                _this.render();
+            });
         },
-        __getAjaxData: function(){
+        __getAjaxData: function(cb){
             var _this = this;
             var xhr = new XMLHttpRequest();
             xhr.open('GET', this.config.url.getData, true);
@@ -84,10 +87,14 @@
                     if (this.status >= 200 && this.status < 400) {
                         // Success!
                         var resp = this.responseText;
+                        var rData = JSON.parse(resp);
                         
-                        _this.cache = JSON.parse(resp);
-                        _this.__localSet(JSON.parse(resp));
-                        _this._render();
+                        _this.cache = rData;
+                        _this.__localSet(rData);
+                        if(Object.prototype.toString.call(cb) === '[object Function]'){
+                            cb(rData);
+                        }
+                        
                     } else {
                         // Error :(
                         //todo 
@@ -125,17 +132,18 @@
             }
             this.cache = JSON.parse(win.localStorage.getItem(this.config.txt.LOCALKEY));
         },
-        __localSet: function(){
+        __localSet: function(){ 
             if(!win.localStorage){
                 return;
             }
             win.localStorage.setItem(this.config.txt.LOCALKEY, JSON.stringify(this.cache));
         },
-        _update: function(){
+        _update: function(cb){
             if(!win.localStorage){
-                this.__getAjaxData();
+                this.__getAjaxData(cb);
             }else{
                 this.__localGet();
+                cb();
             }
         },
         _render: function(){
