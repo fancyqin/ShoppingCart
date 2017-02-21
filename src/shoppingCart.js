@@ -132,7 +132,11 @@
             win.localStorage.setItem(this.config.txt.LOCALKEY, JSON.stringify(this.cache));
         },
         _update: function(){
+            
+            
+            //有问题
             if(!win.localStorage){
+                //异步
                 this.__getAjaxData();
             }else{
                 this.__localGet();
@@ -152,20 +156,31 @@
                 return;
             }
             
+            //todo
             this.el[0].innerHTML = JSON.stringify(this.cache);
             
         },
         add: function(data){
             //add DOM
         },
-        delete: function(){},
-        edit: function(){},
-        clean: function(){},
+        delete: function(){
+            
+        },
+        edit: function(){
+
+        },
+        clean: function(){
+
+        },
         error:function(){
             
         },
-        show: function(){},
-        hide: function(){}
+        show: function(){
+
+        },
+        hide: function(){
+
+        }
     })
     
     return ShoppingCart;
