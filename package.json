@@ -1,0 +1,26 @@
+{
+  "name": "shoppingcart",
+  "version": "1.0.0",
+  "description": "shopping cart lalala",
+  "main": "index.js",
+  "scripts": {
+    "dev": "webpack-dev-server --open --inline --hot"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fancyqin/shoppingCart.git"
+  },
+  "keywords": [
+    "shoppingCart"
+  ],
+  "author": "QF",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fancyqin/shoppingCart/issues"
+  },
+  "homepage": "https://github.com/fancyqin/shoppingCart#readme",
+  "devDependencies": {
+    "webpack": "^2.2.1",
+    "webpack-dev-server": "^2.4.1"
+  }
+}

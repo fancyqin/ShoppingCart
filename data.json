@@ -1,0 +1,16 @@
+{
+    "prods":[
+        {
+            "id":"fw3fe41",
+            "name": "led light",
+            "price": 100,
+            "nums": 3
+        },
+        {
+            "id":"htywe23",
+            "name": "led bulb",
+            "price": 40,
+            "nums": 2
+        }
+    ]
+}
