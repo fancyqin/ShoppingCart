@@ -38,31 +38,62 @@
 
     //接口
     var IShoppingCart = new Abstract({
+        /**
+         * 增加数据 
+         * 增加 cart.add(data); 
+         * @param {Object} data 新增的数据项
+         * 回调 cart.on('add',function(data){});
+         * @param {Array} data 数据
+        */
         add: noop,
+        /**
+         * 删除数据 
+         * 删除 cart.delete(id); 
+         * @param {String} id 删除的数据项id
+         * 回调 cart.on('delete',function(data){});
+         * @param {Array} data 数据
+        */
         delete: noop,
+        /**
+         * 编辑数据 
+         * 编辑 cart.edit(data); 
+         * @param {Object} id 编辑的数据项
+         * 回调 cart.on('edit',function(data){});
+         * @param {Array} data 数据
+        */
         edit: noop,
+        /**
+         * 清空数据 
+         * 清空 cart.clean(); 
+         * 回调 cart.on('clean',function(){});
+        */
         clean: noop,
         error: noop,
+        /**
+         * 显示整个容器
+         * cart.show(); 
+        */
         show: noop,
+        /**
+         * 隐藏整个容器 
+         * cart.hide(); 
+        */
         hide: noop
     });
 
     // 默认配置
     var conf = {
-        el: '.J-shoppingCart',
+        elems: {
+            carrier:'.J-ShoppingCart',
+        },
         txt:{
+            DATA_KEY:'prods',
             LOCALKEY:'ShoppingCart',
             LOCAL_UPDATEFLAG:'udFlag'
         },
         url:{
             getData:'/getData',
             postData:'/postData'
-        },
-        cb:{//增、删、改、清空数据修改之后回调,代替默认add操作 function(data){} ; data为操作之后的数据
-            afterAdd: null,
-            afterDelete:null,
-            afterEdit: null,
-            afterClean: null
         }
     };
 
@@ -112,7 +143,7 @@
                         
                     } else {
                         // Error :(
-                        //todo 
+                        _this.error();
                     }
                 }
             };
@@ -134,7 +165,7 @@
                         //todo
                     } else {
                         // Error :(
-                        //todo 
+                        _this.error();
                     }
                 }
             };
@@ -156,7 +187,7 @@
         _update: function(cb){
             if(!store){
                 this.__getAjaxData(cb);
-            }else if (__flagLocalGet()){
+            }else if (this.__flagLocalGet()){
                 cb();
             }else{
                 this.__localGet();
@@ -169,16 +200,16 @@
                 return;
             }
             if(document.querySelector){
-                this.el = document.querySelectorAll(this.config.el);
+                this.carrier = document.querySelectorAll(this.config.elems.carrier);
             }else{
                 //IE67 兼容 todo
             }
-            if(this.el.length === 0 ){
+            if(this.carrier.length === 0 ){
                 return;
             }
             
             //todo
-            this.el[0].innerHTML = JSON.stringify(this.cache);
+            this.carrier[0].innerHTML = JSON.stringify(this.cache);
             
         },
         add: function(data){
@@ -187,24 +218,20 @@
                 //todo add data 操作
                 
                 _this.__flagLocalSet(false);
-                if(isFunc(_this.config.cb.afterAdd)){
-                    _this.config.cb.afterAdd(_this.cache);
-                    return;
-                }
+                _this.fire('add',_this.cache);
                 
                 //默认dom add操作 todo
+
+                _this._render();
             })
         },
-        delete: function(){
+        delete: function(id){
             var _this = this;
             this._update(function(){
                 //todo delete data 操作
                 
                 _this.__flagLocalSet(false);
-                if(isFunc(_this.config.cb.afterDelete)){
-                    _this.config.cb.afterDelete(_this.cache);
-                    return;
-                }
+                _this.fire('delete',_this.cache);
                 
                 //默认dom delete todo
             })
@@ -215,10 +242,7 @@
                 //todo edit data 操作
                 
                 _this.__flagLocalSet(false);
-                if(isFunc(_this.config.cb.afterEdit)){
-                    _this.config.cb.afterEdit(_this.cache);
-                    return;
-                }
+                _this.fire('edit',_this.cache);
                 
                 //默认dom edit todo
             })
@@ -229,16 +253,12 @@
                 //todo add Clean 操作
                 
                 _this.__flagLocalSet(false);
-                if(isFunc(_this.config.cb.afterClean)){
-                    _this.config.cb.afterClean(_this.cache);
-                    return;
-                }
-                
-                //默认dom Clean todo
+                _this.fire('clean');
+
             })
         },
         error:function(code){
-            win.console && console.error()
+            win.console && console.error('error')
         },
         show: function(){
 
@@ -249,4 +269,22 @@
     })
     
     return ShoppingCart;
+
 }))
+
+
+var shop = new ShoppingCart({
+    elems:{
+        container:'.J-fef'
+    },
+    url:{
+        getData:'/data.json'
+    }
+});
+
+
+
+
+shop.on('clean',function(){
+    console.log('clean over')
+})
