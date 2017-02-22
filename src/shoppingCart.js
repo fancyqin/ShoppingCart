@@ -34,6 +34,7 @@
 
     var cache;
     var win = window;
+    var store = win.localStorage;
 
     //接口
     var IShoppingCart = new Abstract({
@@ -50,11 +51,18 @@
     var conf = {
         el: '.J-shoppingCart',
         txt:{
-            LOCALKEY:'ShoppingCart'
+            LOCALKEY:'ShoppingCart',
+            LOCAL_UPDATEFLAG:'udFlag'
         },
         url:{
             getData:'/getData',
             postData:'/postData'
+        },
+        cb:{//增、删、改、清空数据修改之后回调,代替默认add操作 function(data){} ; data为操作之后的数据
+            afterAdd: null,
+            afterDelete:null,
+            afterEdit: null,
+            afterClean: null
         }
     };
 
@@ -70,12 +78,16 @@
         singleton = this;
     });
 
+    function isFunc (fn){
+        return (Object.prototype.toString.call(fn) === '[object Function]')
+    }
+
     //API
     ShoppingCart.extend({
         __init: function(){
             var _this = this;
             this.__getAjaxData(function(){
-                _this.render();
+                _this._render();
             });
         },
         __getAjaxData: function(cb){
@@ -90,8 +102,11 @@
                         var rData = JSON.parse(resp);
                         
                         _this.cache = rData;
-                        _this.__localSet(rData);
-                        if(Object.prototype.toString.call(cb) === '[object Function]'){
+                        if (store){
+                            _this.__localSet(rData);
+                            _this.__flagLocalSet(true);
+                        }
+                        if(isFunc(cb)){
                             cb(rData);
                         }
                         
@@ -127,20 +142,22 @@
             
         },
         __localGet: function(){
-            if(!win.localStorage){
-                return;
-            }
-            this.cache = JSON.parse(win.localStorage.getItem(this.config.txt.LOCALKEY));
+            this.cache = JSON.parse(store.getItem(this.config.txt.LOCALKEY));
         },
         __localSet: function(){ 
-            if(!win.localStorage){
-                return;
-            }
-            win.localStorage.setItem(this.config.txt.LOCALKEY, JSON.stringify(this.cache));
+            store.setItem(this.config.txt.LOCALKEY, JSON.stringify(this.cache));
+        },
+        __flagLocalSet: function(bol){
+            store.setItem(this.config.txt.LOCAL_UPDATEFLAG, bol)
+        },
+        __flagLocalGet: function(){
+            return store.getItem(this.config.txt.LOCAL_UPDATEFLAG);
         },
         _update: function(cb){
-            if(!win.localStorage){
+            if(!store){
                 this.__getAjaxData(cb);
+            }else if (__flagLocalGet()){
+                cb();
             }else{
                 this.__localGet();
                 cb();
@@ -165,19 +182,63 @@
             
         },
         add: function(data){
-            //add DOM
+            var _this = this;
+            this._update(function(){
+                //todo add data 操作
+                
+                _this.__flagLocalSet(false);
+                if(isFunc(_this.config.cb.afterAdd)){
+                    _this.config.cb.afterAdd(_this.cache);
+                    return;
+                }
+                
+                //默认dom add操作 todo
+            })
         },
         delete: function(){
-            
+            var _this = this;
+            this._update(function(){
+                //todo delete data 操作
+                
+                _this.__flagLocalSet(false);
+                if(isFunc(_this.config.cb.afterDelete)){
+                    _this.config.cb.afterDelete(_this.cache);
+                    return;
+                }
+                
+                //默认dom delete todo
+            })
         },
         edit: function(){
-
+            var _this = this;
+            this._update(function(){
+                //todo edit data 操作
+                
+                _this.__flagLocalSet(false);
+                if(isFunc(_this.config.cb.afterEdit)){
+                    _this.config.cb.afterEdit(_this.cache);
+                    return;
+                }
+                
+                //默认dom edit todo
+            })
         },
         clean: function(){
-
+            var _this = this;
+            this._update(function(){
+                //todo add Clean 操作
+                
+                _this.__flagLocalSet(false);
+                if(isFunc(_this.config.cb.afterClean)){
+                    _this.config.cb.afterClean(_this.cache);
+                    return;
+                }
+                
+                //默认dom Clean todo
+            })
         },
-        error:function(){
-            
+        error:function(code){
+            win.console && console.error()
         },
         show: function(){
 
