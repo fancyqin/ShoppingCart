@@ -87,15 +87,47 @@
             carrier:'.J-ShoppingCart',
         },
         txt:{
-            DATA_KEY:'prods',
-            LOCALKEY:'ShoppingCart',
-            LOCAL_UPDATEFLAG:'udFlag'
+            DATA_KEY:'prods',           //ajax数据key值
+            LOCALKEY:'ShoppingCart',    //localStorage 数据key值
+            LOCAL_UPDATEFLAG:'udFlag'   //localStorage update标识key值
         },
         url:{
             getData:'/getData',
             postData:'/postData'
         }
     };
+
+    if ( !Array.prototype.forEach ) {
+        Array.prototype.forEach = function forEach( callback, thisArg ) {
+            var T, k;
+            if ( this == null ) {
+                throw new TypeError( "this is null or not defined" );
+            }
+            var O = Object(this);
+            var len = O.length >>> 0; 
+            if ( typeof callback !== "function" ) {
+                throw new TypeError( callback + " is not a function" );
+            }
+            if ( arguments.length > 1 ) {
+                T = thisArg;
+            }
+            k = 0;
+            while( k < len ) {
+                var kValue;
+                if ( k in O ) {
+                    kValue = O[ k ];
+                    callback.call( T, kValue, k, O );
+                }
+                k++;
+            }
+        };
+    }
+    function isFunc (fn){
+        return (Object.prototype.toString.call(fn) === '[object Function]')
+    }
+    function isArray(ary){
+        return (Object.prototype.toString.call(ary) === '[object Array]')
+    }
 
 
     var ShoppingCart = new Clazz(IShoppingCart,{config: conf,inherit: Component},function(conf){
@@ -109,9 +141,7 @@
         singleton = this;
     });
 
-    function isFunc (fn){
-        return (Object.prototype.toString.call(fn) === '[object Function]')
-    }
+    
 
     //API
     ShoppingCart.extend({
@@ -130,7 +160,7 @@
                     if (this.status >= 200 && this.status < 400) {
                         // Success!
                         var resp = this.responseText;
-                        var rData = JSON.parse(resp);
+                        var rData = JSON.parse(resp)[_this.config.txt.DATA_KEY];
                         
                         _this.cache = rData;
                         if (store){
@@ -150,7 +180,7 @@
             xhr.send();
 
         },
-        __postAjaxData: function(){
+        __postAjaxData: function(cb){
             //todo post
             var formData = new FormData();
             formData.append('data',this.cache);
@@ -163,6 +193,10 @@
                         // Success!
                         var resp = this.responseText;
                         //todo
+
+                        if(isFunc(cb)){
+                            cb();
+                        }
                     } else {
                         // Error :(
                         _this.error();
@@ -194,6 +228,14 @@
                 cb();
             }
         },
+        _upload: function(cb){
+            if(!store){
+                this.__postAjaxData(cb);
+            }else{
+                this.__localSet();
+                cb();
+            }
+        },
         _render: function(){
             //render DOM
             if(!this.cache){
@@ -212,24 +254,37 @@
             this.carrier[0].innerHTML = JSON.stringify(this.cache);
             
         },
+        _isDataRight: function(){
+            if(isArray(this.cache)){
+                return true;
+            }else{
+                this.error();
+                return false;
+            }
+        },
         add: function(data){
             var _this = this;
             this._update(function(){
-                //todo add data 操作
-                
-                _this.__flagLocalSet(false);
-                _this.fire('add',_this.cache);
+                if(_this._isDataRight()){
+                    _this.cache.push(data);
+
+                    _this._upload(function(){
+                        _this.__flagLocalSet(false);
+                        //_this.config.txt.DATA_KEY
+                        _this.fire('add',{prods:_this.cache});
+                    })
+                }
                 
                 //默认dom add操作 todo
-
                 _this._render();
             })
         },
         delete: function(id){
             var _this = this;
             this._update(function(){
-                //todo delete data 操作
-                
+                if(_this._isDataRight()){
+                    
+                }
                 _this.__flagLocalSet(false);
                 _this.fire('delete',_this.cache);
                 
@@ -261,10 +316,10 @@
             win.console && console.error('error')
         },
         show: function(){
-
+            document.querySelector(this.config.elems.carrier).style.display = "block";
         },
         hide: function(){
-
+            document.querySelector(this.config.elems.carrier).style.display = "none";
         }
     })
     
@@ -275,7 +330,7 @@
 
 var shop = new ShoppingCart({
     elems:{
-        container:'.J-fef'
+        carrier:'.J-fef'
     },
     url:{
         getData:'/data.json'
@@ -287,4 +342,9 @@ var shop = new ShoppingCart({
 
 shop.on('clean',function(){
     console.log('clean over')
+})
+
+
+shop.on('add',function(data){
+    console.log(data)
 })

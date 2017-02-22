@@ -1,16 +1,22 @@
 {
     "prods":[
         {
-            "id":"fw3fe41",
+            "id":"1",
             "name": "led light",
             "price": 100,
             "nums": 3
         },
         {
-            "id":"htywe23",
+            "id":"2",
             "name": "led bulb",
             "price": 40,
             "nums": 2
+        },
+        {
+            "id":"3",
+            "name": "led room",
+            "price": 2000,
+            "nums": 1
         }
     ]
 }
