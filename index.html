@@ -9,5 +9,28 @@
     
     <script type="text/javascript" src="./src/lib/class.js" ></script>
     <script type="text/javascript" src="./src/shoppingCart.js"></script>
+
+    <script>
+
+        var shop = new ShoppingCart({
+            elems:{
+                carrier:'.J-fef'
+            },
+            url:{
+                getData:'/data.json'
+            }
+        });
+
+                    
+
+        shop.on('clean',function(){
+            console.log('clean over')
+        })
+
+        shop.on('add',function(data){
+            console.log(data);
+        })
+    
+    </script>
 </body>
 </html>
