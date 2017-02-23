@@ -3,34 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <title>Shopping Cart</title>
+    <style>
+        body{
+            font-family: 'Roboto',Roboto,Arial, sans-serif
+        }
+        .shop{
+            width: 500px;
+            list-style: none;
+            padding: 0;
+        }
+        .shop-title{
+            font-weight: bold;
+        }
+        .shop-item{
+            height: 30px;
+        }
+        .shop-item .name{
+            display: inline-block;
+            width: 300px;
+        }
+        .shop-item .price{
+            display: inline-block;
+            width: 60px;
+        }
+        .shop-item .nums{
+            display: inline-block;
+            width: 30px;
+            text-align: center;
+        }
+        .shop-item .func{
+            float: right;
+        }
+    </style>
 </head>
 <body>
-    <div class="J-fef"></div>
+    <div class="J-shop">
+        <h2>data</h2>
+        <div class="J-data"></div>
+        <h2>list</h2>
+        <div class="shop shop-title">
+            <div class="shop-item"><span class="name">Name</span><span class="price">Price($)</span><div class="func">Func</div></div>
+        </div>
+        <ol class="J-list shop">
+            
+        </ol>
+        
+        <h3>Total:  $<span class="J-totalPrice"></span></h3>
+
+        <h2>func</h2>
+        <button class="J-add">Add</button>    
+        <button class="J-clean">Clean</button>
+    </div>
     
+    <script type="text/javascript" src="./src/lib/jquery.min.js"></script>
     <script type="text/javascript" src="./src/lib/class.js" ></script>
     <script type="text/javascript" src="./src/shoppingCart.js"></script>
+    <script type="text/javascript" src="./src/example.js"></script>
 
-    <script>
-
-        var shop = new ShoppingCart({
-            elems:{
-                carrier:'.J-fef'
-            },
-            url:{
-                getData:'/data.json'
-            }
-        });
-
-                    
-
-        shop.on('clean',function(){
-            console.log('clean over')
-        })
-
-        shop.on('add',function(data){
-            console.log(data);
-        })
-    
-    </script>
 </body>
 </html>

@@ -85,7 +85,8 @@
         url:{
             getData:'/getData',
             postData:'/postData'
-        }
+        },
+        render: null
     };
 
     //map兼容处理
@@ -163,7 +164,7 @@
                         _this.cache = rData;
                         if (store){
                             _this.__localSet(rData);
-                            _this.__flagLocalSet(true);
+                            _this.__flagLocalSet(1);
                         }
                         if(isFunc(cb)){
                             cb(rData);
@@ -214,7 +215,7 @@
             store.setItem(this.config.txt.LOCAL_UPDATEFLAG, bol)
         },
         __flagLocalGet: function(){
-            return store.getItem(this.config.txt.LOCAL_UPDATEFLAG);
+            return Number(store.getItem(this.config.txt.LOCAL_UPDATEFLAG));
         },
         _update: function(cb){
             if(!store){
@@ -235,8 +236,11 @@
             }
         },
         _render: function(){
+
+            if(isFunc(this.config.render)){
+                this.config.render(this.cache);
+            }
             
-            this.fire('render',{prods:this.cache});
             /*
             //render DOM
             if(!this.cache){
@@ -288,15 +292,16 @@
                     _this.cache.push(data);
                     
                     _this._upload(function(){
-                        _this.__flagLocalSet(false);
+                        _this.__flagLocalSet(0);
                         //_this.config.txt.DATA_KEY
                         _this.fire('add',{prods:_this.cache});
+                        _this._render();
                     })
                 }
                 
-                _this._render();
             })
         },
+        //删除指定id 的项
         delete: function(id){
             var _this = this;
             this._update(function(){
@@ -311,12 +316,13 @@
                     _this.cache.splice(index,1);
                     //存储
                     _this._upload(function(){
-                        _this.__flagLocalSet(false);
+                        _this.__flagLocalSet(0);
                         _this.fire('delete',{prods:_this.cache});
+                        _this._render();
                     })
                 }
                 
-                _this._render();
+                
             })
         },
         //修改 data 传入新的某项值
@@ -334,22 +340,26 @@
                 _this.cache.splice(index,1,data);
                 //存储
                 _this._upload(function(){
-                    _this.__flagLocalSet(false);
+                    _this.__flagLocalSet(0);
                     _this.fire('edit',{prods:_this.cache});
+                    _this._render();
                 })
                 
             })
-            _this._render();
         },
-        
+        //清空数据
         clean: function(){
             var _this = this;
             this._update(function(){
-                //todo add Clean 操作
                 
-                _this.__flagLocalSet(false);
-                _this.fire('clean');
+                _this.cache = [];
 
+                _this._upload(function(){
+                    _this.__flagLocalSet(0);
+                    _this.fire('clean');
+                    _this._render();
+                })
+                
             })
         },
         error:function(code){
