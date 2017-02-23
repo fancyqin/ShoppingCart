@@ -8,7 +8,7 @@
 
 /**
  * @name ShoppingCart
- * @class Shopping Cart 
+ * @class Shopping Cart Data
  * @requires Clazz
  * @constructor ShoppingCart
  * @param {Object} config 组件配置
@@ -87,9 +87,13 @@
             carrier:'.J-ShoppingCart',
         },
         txt:{
-            DATA_KEY:'prods',           //ajax数据key值
-            LOCALKEY:'ShoppingCart',    //localStorage 数据key值
-            LOCAL_UPDATEFLAG:'udFlag'   //localStorage update标识key值
+            DATA_KEY:'prods',           //ajax数据 商品数组 key值
+            DATA_PROD_kEY_ID:'id',      //ajax数据 商品id key值
+            DATA_PROD_KEY_NUMS:'nums',  //ajax数据 商品数量 key值
+            DATA_PROD_kEY_PRICE:'price',//ajax数据 商品单价 key值
+            DATA_PROD_kEY_NAME:'name',  //ajax数据 商品 key值
+            LOCALKEY:'ShoppingCart',    //localStorage 数据 key值
+            LOCAL_UPDATEFLAG:'udFlag'   //localStorage update标识 key值
         },
         url:{
             getData:'/getData',
@@ -97,31 +101,38 @@
         }
     };
 
-    if ( !Array.prototype.forEach ) {
-        Array.prototype.forEach = function forEach( callback, thisArg ) {
-            var T, k;
-            if ( this == null ) {
-                throw new TypeError( "this is null or not defined" );
+    //map兼容处理
+    if (!Array.prototype.map) {
+        Array.prototype.map = function(callback, thisArg) {
+            var T, A, k;
+            if (this == null) {
+                throw new TypeError(" this is null or not defined");
             }
             var O = Object(this);
-            var len = O.length >>> 0; 
-            if ( typeof callback !== "function" ) {
-                throw new TypeError( callback + " is not a function" );
+            var len = O.length >>> 0;
+            if (Object.prototype.toString.call(callback) != "[object Function]") {
+                throw new TypeError(callback + " is not a function");
             }
-            if ( arguments.length > 1 ) {
+            if (thisArg) {
                 T = thisArg;
             }
+            A = new Array(len);
             k = 0;
-            while( k < len ) {
-                var kValue;
-                if ( k in O ) {
-                    kValue = O[ k ];
-                    callback.call( T, kValue, k, O );
-                }
+            while(k < len) {
+                var kValue, mappedValue;
+                    if (k in O) {
+                        kValue = O[ k ];
+                        mappedValue = callback.call(T, kValue, k, O);
+                        A[ k ] = mappedValue;
+                    }
                 k++;
             }
-        };
+            return A;
+        };      
     }
+
+
+
     function isFunc (fn){
         return (Object.prototype.toString.call(fn) === '[object Function]')
     }
@@ -249,7 +260,6 @@
             if(this.carrier.length === 0 ){
                 return;
             }
-            
             //todo
             this.carrier[0].innerHTML = JSON.stringify(this.cache);
             
@@ -262,12 +272,21 @@
                 return false;
             }
         },
+        _indexById: function(id){
+            var index = -1;
+            this.cache.map(function(item,i){
+                if(item[_this.config.txt.DATA_PROD_kEY_ID] === id){
+                    index = i;
+                }
+            })
+            return index;
+        },
         add: function(data){
             var _this = this;
             this._update(function(){
                 if(_this._isDataRight()){
                     _this.cache.push(data);
-
+                    
                     _this._upload(function(){
                         _this.__flagLocalSet(false);
                         //_this.config.txt.DATA_KEY
@@ -275,7 +294,6 @@
                     })
                 }
                 
-                //默认dom add操作 todo
                 _this._render();
             })
         },
@@ -283,12 +301,19 @@
             var _this = this;
             this._update(function(){
                 if(_this._isDataRight()){
-                    
+                    var index = _this._indexById(id);
+                    if(index === -1){
+                        _this.error();
+                        return false;
+                    }
+                    _this.cache.splice(index,1);
+                    _this._upload(function(){
+                        _this.__flagLocalSet(false);
+                        _this.fire('delete',{prods:_this.cache});
+                    })
                 }
-                _this.__flagLocalSet(false);
-                _this.fire('delete',_this.cache);
                 
-                //默认dom delete todo
+                _this._render();
             })
         },
         edit: function(){
@@ -346,5 +371,5 @@ shop.on('clean',function(){
 
 
 shop.on('add',function(data){
-    console.log(data)
+    console.log(data);
 })
