@@ -147,7 +147,7 @@
         __init: function(){
             var _this = this;
             this.__getAjaxData(function(){
-                _this._render();
+                _this.render();
             });
         },
         __getAjaxData: function(cb){
@@ -217,7 +217,7 @@
         __flagLocalGet: function(){
             return Number(store.getItem(this.config.txt.LOCAL_UPDATEFLAG));
         },
-        _update: function(cb){
+        update: function(cb){
             if(!store){
                 this.__getAjaxData(cb);
             }else if (this.__flagLocalGet()){
@@ -235,7 +235,7 @@
                 cb();
             }
         },
-        _render: function(){
+        render: function(){
 
             if(isFunc(this.config.render)){
                 this.config.render(this.cache);
@@ -280,7 +280,7 @@
         //增加一个新的prods push
         add: function(data){
             var _this = this;
-            this._update(function(){
+            this.update(function(){
                 if(_this._isDataRight()){
                     var index = _this._indexById(data[_this.config.txt.DATA_PROD_kEY_ID]);
                     if(index !== -1){
@@ -295,7 +295,7 @@
                         _this.__flagLocalSet(0);
                         //_this.config.txt.DATA_KEY
                         _this.fire('add',{prods:_this.cache});
-                        _this._render();
+                        _this.render();
                     })
                 }
                 
@@ -304,7 +304,7 @@
         //删除指定id 的项
         delete: function(id){
             var _this = this;
-            this._update(function(){
+            this.update(function(){
                 if(_this._isDataRight()){
                     //获取index
                     var index = _this._indexById(id);
@@ -318,7 +318,7 @@
                     _this._upload(function(){
                         _this.__flagLocalSet(0);
                         _this.fire('delete',{prods:_this.cache});
-                        _this._render();
+                        _this.render();
                     })
                 }
                 
@@ -328,7 +328,7 @@
         //修改 data 传入新的某项值
         edit: function(data){
             var _this = this;
-            this._update(function(){
+            this.update(function(){
                 //获取index
                 var index = _this._indexById(data[_this.config.txt.DATA_PROD_kEY_ID]);
                 if(index === -1){
@@ -342,7 +342,7 @@
                 _this._upload(function(){
                     _this.__flagLocalSet(0);
                     _this.fire('edit',{prods:_this.cache});
-                    _this._render();
+                    _this.render();
                 })
                 
             })
@@ -350,14 +350,14 @@
         //清空数据
         clean: function(){
             var _this = this;
-            this._update(function(){
+            this.update(function(){
                 
                 _this.cache = [];
 
                 _this._upload(function(){
                     _this.__flagLocalSet(0);
                     _this.fire('clean');
-                    _this._render();
+                    _this.render();
                 })
                 
             })

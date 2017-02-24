@@ -8,7 +8,8 @@ $(function(){
     var $shop = $('.J-shop'),
         $list = $shop.find('.J-list'),
         $add = $shop.find('.J-add'),    
-        $clean = $shop.find('.J-clean');
+        $clean = $shop.find('.J-clean'),
+        $update = $shop.find('.J-update');
 
     var shop = new ShoppingCart({
         url:{
@@ -42,6 +43,12 @@ $(function(){
 
     shop.on('clean',function(){
         console.log('clean over!')
+    })
+
+    $update.on('click',function(){
+        shop.update(function(){
+            shop.render();
+        })
     })
 
     //增加一个
